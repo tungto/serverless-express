@@ -4,8 +4,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const compression = require('compression');
 const { getCurrentInvoke } = require('@vendia/serverless-express');
-const ejs = require('ejs').__express;
-const app = express();
+const server = express();
 const router = express.Router();
 
 router.use(compression());
@@ -19,13 +18,14 @@ router.get('/', (req, res) => {
 	const { event = {} } = currentInvoke;
 	const { requestContext = {}, multiValueHeaders = {} } = event;
 	const { stage = '' } = requestContext;
-	const { Host = ['localhost:3000'] } = multiValueHeaders;
+	const { Host = [`localhost:${global.PORT}`] } = multiValueHeaders;
 	const apiUrl = `https://${Host[0]}/${stage}`;
 	res.send({
 		debug: true,
 		success: true,
 		apiUrl,
 		stage,
+		date: new Date().toString(),
 	});
 });
 
@@ -92,9 +92,9 @@ router.get('/', (req, res) => {
 // let userIdCounter = users.length;
 
 // The serverless-express library creates a server and listens on a Unix
-// Domain Socket for you, so you can remove the usual call to app.listen.
-// app.listen(3000)
-app.use('/', router);
+// Domain Socket for you, so you can remove the usual call to server.listen.
+// server.listen(3000)
+server.use('/', router);
 
 // Export your express server so you can import it in the lambda function.
-module.exports = app;
+module.exports = server;
